@@ -79,7 +79,7 @@
   animation-delay: .75s;
 }
 .cinematic-hero .floating-note { bottom: 135px; animation: enter 1s .8s both; }
-.cinematic-hero .hero-bottom { bottom: 26px; animation: enter 1s .9s both; }
+.cinematic-hero .hero-bottom { justify-content: flex-end; bottom: 26px; animation: enter 1s .9s both; }
 .hero-bottom .circle { transition: background .3s, border-color .3s; }
 .hero-bottom .circle svg { animation: scroll-invitation 2.8s 1.5s ease-in-out infinite; }
 .hero-bottom a:hover .circle { background: #f6f2e81c; border-color: #f6f2e8bb; }

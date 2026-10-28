@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { ArrowDown, ArrowUpRight, Leaf, Pause, Play } from 'lucide-react';
+import { ArrowUpRight, Leaf, Pause, Play } from 'lucide-react';
 
 const motes = [
   [53, 18, 19, -7], [67, 69, 24, -13], [87, 34, 21, -4],
@@ -50,6 +50,6 @@ export function CinematicHero() {
     <div className="hero-top"><span>ONE ISLAND. A WORLD OF WONDER.</span><span>06° N / 80° E</span></div>
     <div className="hero-copy"><p className="eyebrow light">NATURE’S QUIET MASTERPIECE</p><h1><span className="hero-line"><span>A little island.</span></span><span className="hero-line"><span>An <em>extraordinary</em></span></span><span className="hero-line"><span>spice.</span></span></h1><p>Born in the heart of Sri Lanka.<br />Made for the moments worth savouring.</p><div className="hero-actions"><a className="button cream" href="#collection">Discover true cinnamon <ArrowUpRight size={19} /></a><a className="hero-secondary" href="#story">Meet our roots <ArrowUpRight size={16} /></a></div><p className="hero-product-note">WHOLE QUILLS & FINELY GROUND · CEYLON CINNAMON</p></div>
     <div className="floating-note"><Leaf size={23} /><span>Cinnamomum verum<br /><i>Nothing quite like the real thing.</i></span></div>
-    <div className="hero-bottom"><a href="#story"><span className="circle"><ArrowDown size={18} /></span><span>A STORY WORTH SLOWING DOWN FOR</span></a>{!reduced && <button className="hero-motion-control" onClick={() => setPaused(value => !value)} aria-label={paused ? 'Play background motion' : 'Pause background motion'}>{paused ? <Play size={12} /> : <Pause size={12} />}<span>{paused ? 'Play motion' : 'Pause motion'}</span></button>}</div>
+    <div className="hero-bottom">{!reduced && <button className="hero-motion-control" onClick={() => setPaused(value => !value)} aria-label={paused ? 'Play background motion' : 'Pause background motion'}>{paused ? <Play size={12} /> : <Pause size={12} />}<span>{paused ? 'Play motion' : 'Pause motion'}</span></button>}</div>
   </section>;
 }
