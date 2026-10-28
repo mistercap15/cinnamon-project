@@ -1,0 +1,1 @@
+export default function Loading() { return <main id="main-content" className="state-page" role="status"><span aria-hidden="true">✳</span><p className="eyebrow">GATHERING THE GOOD THINGS…</p><div className="loading-line" /></main>; }

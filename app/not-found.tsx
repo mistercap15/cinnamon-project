@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function NotFound() { return <main id="main-content" className="state-page"><span aria-hidden="true">✳</span><p className="eyebrow">A SMALL DETOUR / 404</p><h1>A little<br /><em>off the beaten path.</em></h1><p>This page may have moved, or its story is still being written.</p><Link href="/shop" className="button dark">Explore the shop</Link><Link href="/blog" className="text-link">Wander through the journal</Link></main>; }
