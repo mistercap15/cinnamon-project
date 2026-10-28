@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import Lenis from 'lenis';
-import { ArrowUpRight, Leaf, Menu, Minus, Plus, ShoppingBag, X } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, Leaf, Menu, Minus, Plus, ShoppingBag, X } from 'lucide-react';
 import { firstVariant, money, type Money, type Product, type Variant } from '../lib/types';
 
 type BagLine = { id: string; handle: string; title: string; variant: string; image: string; price: Money; quantity: number; demo: boolean };
@@ -47,17 +47,21 @@ export function Storefront({ children, live }: { children: ReactNode; live: bool
     const resize = new ResizeObserver(() => document.documentElement.style.setProperty('--header-height', `${header.getBoundingClientRect().height}px`)); resize.observe(header);
     const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }), { threshold: .08 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    const hero = document.querySelector<HTMLElement>('.hero');
+    const backToTop = document.querySelector<HTMLElement>('.back-to-top');
     const scroll = () => {
       const range = document.documentElement.scrollHeight - innerHeight;
       document.documentElement.style.setProperty('--progress', `${range > 0 ? Math.min(100, Math.max(0, scrollY / range * 100)) : 0}%`);
-      document.querySelector<HTMLElement>('.hero')?.style.setProperty('--offset', `${motion.matches ? 0 : Math.min(scrollY * .22, 190)}px`);
+      header.dataset.scrolled = String(scrollY > 20);
+      if (backToTop) backToTop.dataset.visible = String(scrollY > innerHeight * .8);
+      if (hero && (motion.matches || hero.dataset.motion !== 'paused')) hero.style.setProperty('--offset', `${motion.matches ? 0 : Math.min(scrollY * .16, 120)}px`);
     };
     const navigate = (hash: string, immediate = false) => {
       let target: HTMLElement | null = null;
       try { target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null; } catch { return; }
       if (hash && !target) return;
       const top = target ? Math.max(0, scrollY + target.getBoundingClientRect().top + parseFloat(getComputedStyle(target).paddingTop || '0') - header.getBoundingClientRect().height - 28) : 0;
-      const focus = () => { if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); } };
+      const focus = () => { const destination = target || document.getElementById('main-content'); if (destination) { destination.tabIndex = -1; destination.focus({ preventScroll: true }); } };
       if (lenis.current) { lenis.current.start(); lenis.current.scrollTo(top, { immediate, onComplete: focus }); }
       else { window.scrollTo({ top, behavior: 'instant' }); focus(); }
     };
@@ -127,6 +131,7 @@ export function Storefront({ children, live }: { children: ReactNode; live: bool
     </header>
     <div id="page-content">{children}</div>
     <footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">ceylon<span>THE TRUE CINNAMON</span></Link><p>A little island.<br /><em>An extraordinary spice.</em></p><div className="footer-links"><Link href="/shop">Shop the cinnamon <ArrowUpRight size={15} /></Link><Link href="/blog">Read the journal <ArrowUpRight size={15} /></Link><Link href="/#story">Discover our roots <ArrowUpRight size={15} /></Link></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} CEYLON{!live && ' · INDEPENDENT DESIGN CONCEPT'}</span><span>Crafted by Khilan Patel</span></div></footer>
+    <a href="#" className="back-to-top" aria-label="Back to top"><ArrowUp size={17} /></a>
     {menu && <div ref={dialog} className="mobile-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Navigation"><button onClick={close} aria-label="Close menu"><X /></button><p className="eyebrow">A LITTLE ISLAND. PLENTY TO EXPLORE.</p>{navigation.map(item => item.href.includes('#') && pathname === '/' ? <a key={item.href} href={item.href.slice(1)}>{item.label}<ArrowUpRight /></a> : <Link key={item.href} href={item.href} onClick={close}>{item.label}<ArrowUpRight /></Link>)}</div>}
     {cart && <div className="cart-overlay" onClick={close}><div ref={dialog} className="cart-drawer" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Your bag" onClick={event => event.stopPropagation()}><div className="cart-header"><h2>Your little collection.</h2><button onClick={close} aria-label="Close bag"><X /></button></div><p className="demo-note">{live ? 'A little warmth, ready for your everyday.' : 'Preview bag · illustrative prices · checkout is not enabled.'}</p>{!total ? <div className="empty"><Leaf size={48} /><h3>A little wonder awaits.</h3><Link href="/shop" onClick={close} className="button dark">Explore the collection <ArrowUpRight /></Link></div> : <>
       {lines.map(line => <div className="cart-item" key={line.id}><Link href={`/products/${line.handle}`} onClick={close} aria-label={`View ${line.title}`}><img src={line.image} alt={line.title} /></Link><div><Link href={`/products/${line.handle}`} onClick={close}><h3>{line.title}</h3></Link><p>{money(line.price)} · {line.variant === 'Default Title' ? 'Original' : line.variant}</p><div className="quantity"><button disabled={busy} aria-label={`Remove one ${line.title}, ${line.variant}`} onClick={() => quantity(line.id, -1)}><Minus size={14} /></button><span aria-live="polite">{line.quantity}</span><button disabled={busy || line.quantity >= 99} aria-label={`Add one ${line.title}, ${line.variant}`} onClick={() => quantity(line.id, 1)}><Plus size={14} /></button></div></div></div>)}

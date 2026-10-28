@@ -59,6 +59,14 @@ The bag persists in browser local storage across pages, reloads, and tabs. It co
 
 A shared persistent header and one Lenis controller handle section links on every page. Section content lands 28px below the measured header. Navigation waits for mobile-menu scroll locks to release; cross-page section links preserve the same alignment. The bag scrolls independently, while the background is inert and locked. Dialogs support Escape, a keyboard focus loop, and focus restoration without an extra scroll. Reduced-motion preferences use immediate navigation.
 
+## Presentation polish and motion
+
+The homepage uses the existing hero photograph as a lightweight cinematic background: a continuous camera-style pan/zoom, slowly shifting warm light, subtle drifting particles, scroll depth, and fine-pointer parallax. It is animated still photography, not a video file. The photograph loads eagerly with high priority; no extra video download is required.
+
+A visible pause/play control stops the repeating banner effects. Animation pauses automatically when the banner is offscreen or the tab is hidden. Reduced-motion settings remove the repeating effects, pointer motion, and entrance animations. The headline enters in a staggered sequence, and narrow-phone/short-laptop layouts keep the copy and controls separated.
+
+Additional refinements include crossfading ritual images, expanding FAQ answers, keyboard-visible product quick-add controls, animated mobile menu entrances, hover/focus feedback, email autocomplete and signup status styling, a subtle scrolled-header shadow, and a back-to-top link that returns focus to the main content. Motion styles live in `app/motion.css`.
+
 ## Validation
 
 ```bash
@@ -69,7 +77,7 @@ npm run test:e2e  # local production server + desktop/mobile Chrome
 
 Browser tests use an installed Google Chrome. If it is unavailable, install Chrome, or install a Playwright browser and update `channel` in `playwright.config.ts`. Run browser tests with Shopify variables unset; the tests intentionally use the deterministic preview catalog. Test output and traces are ignored by Git.
 
-The automated checks cover product filters/search/sorting, variant prices and quantities, persistent bag state, preview checkout, full articles, topic filters and search, missing content, hydration errors, mobile navigation, cross-page section alignment, reduced motion, dialog keyboard behavior, FAQs, rituals, signup feedback, and horizontal overflow. Shopify contract tests use mocked API responses; they do not make real purchases.
+The automated checks cover product filters/search/sorting, variant prices and quantities, persistent bag state, preview checkout, full articles, topic filters and search, missing content, hydration errors, mobile navigation, cross-page section alignment, reduced motion, dialog keyboard behavior, FAQs, rituals, signup feedback, cinematic motion pause/resume and reduced-motion behavior, offscreen pausing, back-to-top focus, narrow-phone/short-laptop banner fit, and horizontal overflow. Shopify contract tests use mocked API responses; they do not make real purchases.
 
 Physical-device, screen-reader, and connected Shopify test-order checks remain before launch. The email form is still a browser-only preview; connect a mailing provider separately.
 

@@ -109,3 +109,58 @@ test('preview checkout API refuses orders and malformed stored bag cannot break 
   await hydrated(page, '/shop');
   await expect(page.getByRole('button', { name: 'Open bag, 0 items', exact: true })).toBeVisible();
 });
+
+test('cinematic banner animates, pauses, resumes, and respects reduced motion', async ({ page }) => {
+  await hydrated(page, '/');
+  const hero = page.locator('.cinematic-hero');
+  const film = page.locator('.hero-film');
+  await expect(hero).toHaveAttribute('data-motion', 'running');
+  const initial = await film.evaluate(element => getComputedStyle(element).transform);
+  await expect.poll(() => film.evaluate(element => getComputedStyle(element).transform)).not.toBe(initial);
+  await page.getByRole('button', { name: 'Pause background motion', exact: true }).click();
+  await expect(film).toHaveCSS('animation-play-state', 'paused');
+  const paused = await film.evaluate(element => getComputedStyle(element).transform);
+  await page.waitForTimeout(250);
+  expect(await film.evaluate(element => getComputedStyle(element).transform)).toBe(paused);
+  await page.getByRole('button', { name: 'Play background motion', exact: true }).click();
+  await expect(film).toHaveCSS('animation-play-state', 'running');
+  await expect.poll(() => film.evaluate(element => getComputedStyle(element).transform)).not.toBe(paused);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(film).toHaveCSS('animation-name', 'none');
+  await expect(page.getByRole('button', { name: /background motion/ })).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('offscreen banner pauses and back-to-top returns keyboard focus to the page', async ({ page }) => {
+  await hydrated(page, '/');
+  await expect(page.getByRole('link', { name: 'Back to top', exact: true })).not.toBeVisible();
+  await page.getByRole('link', { name: 'Discover true cinnamon' }).click();
+  await expect(page.locator('.cinematic-hero')).toHaveAttribute('data-motion', 'paused');
+  const back = page.getByRole('link', { name: 'Back to top', exact: true });
+  await expect(back).toBeVisible();
+  await back.click();
+  await expect.poll(() => page.evaluate(() => scrollY), { timeout: 6000 }).toBeLessThan(2);
+  await expect(page.locator('#main-content')).toBeFocused();
+  await expect(page.locator('.cinematic-hero')).toHaveAttribute('data-motion', 'running');
+});
+
+test('banner typography and actions fit narrow phones and short laptop screens', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await hydrated(page, '/');
+  for (const viewport of [{ width: 320, height: 740 }, { width: 768, height: 700 }, { width: 1000, height: 700 }, { width: 1440, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    const fit = await page.evaluate(async () => {
+      await document.fonts.ready;
+      const lines = [...document.querySelectorAll<HTMLElement>('.hero-line > span')];
+      const hero = document.querySelector('.hero')!.getBoundingClientRect();
+      const copy = document.querySelector('.hero-product-note')!.getBoundingClientRect();
+      const bottom = document.querySelector('.hero-bottom')!.getBoundingClientRect();
+      return {
+        linesFit: lines.every(line => line.getBoundingClientRect().right < innerWidth - 15 && line.getBoundingClientRect().height < parseFloat(getComputedStyle(line).fontSize) * 1.7),
+        controlsFit: copy.bottom + 10 < bottom.top && bottom.bottom < hero.bottom,
+        noOverflow: document.documentElement.scrollWidth <= innerWidth,
+      };
+    });
+    expect(fit).toEqual({ linesFit: true, controlsFit: true, noOverflow: true });
+  }
+});
