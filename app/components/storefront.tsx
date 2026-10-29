@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import Lenis from 'lenis';
-import { ArrowUp, ArrowUpRight, Leaf, Menu, Minus, Plus, ShoppingBag, X } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, Leaf, Menu, Minus, Plus, ShoppingBag, UserRound, X } from 'lucide-react';
 import { firstVariant, money, type Money, type Product, type Variant } from '../lib/types';
 
 type BagLine = { id: string; handle: string; title: string; variant: string; image: string; price: Money; quantity: number; demo: boolean };
-type BagContext = { add: (product: Product, variant?: Variant, quantity?: number) => void };
+type BagContext = { add: (product: Product, variant?: Variant, quantity?: number) => void; clear: () => void };
 const Bag = createContext<BagContext | null>(null);
 export function useBag() { const bag = useContext(Bag); if (!bag) throw new Error('Bag provider missing'); return bag; }
 const navigation = [{ label: 'Our roots', href: '/#story' }, { label: 'Shop', href: '/shop' }, { label: 'Daily rituals', href: '/#rituals' }, { label: 'Journal', href: '/blog' }];
@@ -21,7 +21,9 @@ function readBag(value: string | null, live: boolean): BagLine[] {
   } catch { return []; }
 }
 
-export function Storefront({ children, live }: { children: ReactNode; live: boolean }) {
+export function Storefront({ children, live, provider = 'shopify', demo = false }: { children: ReactNode; live: boolean; provider?: string; demo?: boolean }) {
+  const router=useRouter();
+  const storageKey=provider==='medusa'?'ceylon-medusa-bag-v1':'ceylon-bag-v1';
   const pathname = usePathname();
   const [menu, setMenu] = useState(false), [cart, setCart] = useState(false);
   const [lines, setLines] = useState<BagLine[]>([]), [ready, setReady] = useState(false);
@@ -33,9 +35,9 @@ export function Storefront({ children, live }: { children: ReactNode; live: bool
   const close = useCallback(() => { setMenu(false); setCart(false); }, []);
   const openCart = () => { opener.current = document.activeElement as HTMLElement; setError(''); setCart(true); };
 
-  useEffect(() => { try { setLines(readBag(localStorage.getItem('ceylon-bag-v1'), live)); } catch { setLines([]); } setReady(true); }, [live]);
-  useEffect(() => { if (ready) { try { localStorage.setItem('ceylon-bag-v1', JSON.stringify(lines)); } catch { /* Storage is optional in private browsing. */ } } }, [lines, ready]);
-  useEffect(() => { const sync = (event: StorageEvent) => { if (event.key === 'ceylon-bag-v1') setLines(readBag(event.newValue, live)); }; window.addEventListener('storage', sync); return () => window.removeEventListener('storage', sync); }, [live]);
+  useEffect(() => { try { setLines(readBag(localStorage.getItem(storageKey), live)); } catch { setLines([]); } setReady(true); }, [live,storageKey]);
+  useEffect(() => { if (ready) { try { localStorage.setItem(storageKey, JSON.stringify(lines)); } catch { /* Storage is optional in private browsing. */ } } }, [lines, ready,storageKey]);
+  useEffect(() => { const sync = (event: StorageEvent) => { if (event.key === storageKey) setLines(readBag(event.newValue, live)); }; window.addEventListener('storage', sync); return () => window.removeEventListener('storage', sync); }, [live,storageKey]);
   useEffect(() => { close(); }, [pathname, close]);
 
   useEffect(() => {
@@ -115,27 +117,28 @@ export function Storefront({ children, live }: { children: ReactNode; live: bool
     if (busy || !live || !lines.length) return;
     setBusy(true); setError('');
     try {
-      const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lines: lines.map(line => ({ merchandiseId: line.id, quantity: line.quantity })) }) });
+      const response = await fetch(provider==='medusa'?'/api/commerce/cart':'/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lines: lines.map(line => provider==='medusa'?({variant_id:line.id,quantity:line.quantity}):({merchandiseId:line.id,quantity:line.quantity})) }) });
       const data = await response.json();
       if (!response.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout is unavailable. Please try again.');
-      window.location.assign(data.checkoutUrl);
+      if(provider==='medusa'){setCart(false);setBusy(false);router.push(data.checkoutUrl);}else window.location.assign(data.checkoutUrl);
     } catch (err) { setError(err instanceof Error ? err.message : 'Unable to connect. Please try again.'); setBusy(false); }
   };
 
-  return <Bag.Provider value={{ add }}>
+  const clear=useCallback(()=>setLines([]),[]);
+  return <Bag.Provider value={{ add,clear }}>
     <div className="progress" /><a className="skip" href="#main-content">Skip to content</a>
     <header>
       <Link href="/" className="wordmark" aria-label="Ceylon home">ceylon<span>THE TRUE CINNAMON</span></Link>
       <nav aria-label="Main navigation">{navigation.map(item => item.href.includes('#') && pathname === '/' ? <a key={item.href} href={item.href.slice(1)}>{item.label}</a> : <Link key={item.href} href={item.href} aria-current={pathname === item.href || (item.href === '/shop' && pathname.startsWith('/products/')) || (item.href === '/blog' && pathname.startsWith('/blog/')) ? 'page' : undefined}>{item.label}</Link>)}</nav>
-      <div className="nav-actions"><span className="origin">ROOTED IN SRI LANKA <span>✳</span></span><button className="bag" onClick={openCart} aria-label={`Open bag, ${total} items`}><ShoppingBag size={19} /><span>{total}</span></button><button className="mobile-toggle" aria-label="Open menu" aria-expanded={menu} onClick={() => { opener.current = document.activeElement as HTMLElement; setMenu(true); }}><Menu /></button></div>
+      <div className="nav-actions"><span className="origin">ROOTED IN SRI LANKA <span>✳</span></span><Link href="/account" className="account-trigger" aria-label="Your account" style={provider==='medusa'?undefined:{display:'none'}}><UserRound size={19}/></Link><button className="bag" onClick={openCart} aria-label={`Open bag, ${total} items`}><ShoppingBag size={19} /><span>{total}</span></button><button className="mobile-toggle" aria-label="Open menu" aria-expanded={menu} onClick={() => { opener.current = document.activeElement as HTMLElement; setMenu(true); }}><Menu /></button></div>
     </header>
     <div id="page-content">{children}</div>
-    <footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">ceylon<span>THE TRUE CINNAMON</span></Link><p>A little island.<br /><em>An extraordinary spice.</em></p><div className="footer-links"><Link href="/shop">Shop the cinnamon <ArrowUpRight size={15} /></Link><Link href="/blog">Read the journal <ArrowUpRight size={15} /></Link><Link href="/#story">Discover our roots <ArrowUpRight size={15} /></Link></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} CEYLON{!live && ' · INDEPENDENT DESIGN CONCEPT'}</span><span>Crafted by Khilan Patel</span></div></footer>
+    <footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">ceylon<span>THE TRUE CINNAMON</span></Link><p>A little island.<br /><em>An extraordinary spice.</em></p><div className="footer-links"><Link href="/shop">Shop the cinnamon <ArrowUpRight size={15} /></Link><Link href="/blog">Read the journal <ArrowUpRight size={15} /></Link>{provider==='medusa'&&<Link href="/account">Your account <ArrowUpRight size={15}/></Link>}<Link href="/#story">Discover our roots <ArrowUpRight size={15} /></Link></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} CEYLON{!live && ' · INDEPENDENT DESIGN CONCEPT'}</span><span>{demo&&'SHOWCASE STORE · '}Crafted by Khilan Patel</span></div></footer>
     <a href="#" className="back-to-top" aria-label="Back to top"><ArrowUp size={17} /></a>
-    {menu && <div ref={dialog} className="mobile-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Navigation"><button onClick={close} aria-label="Close menu"><X /></button><p className="eyebrow">A LITTLE ISLAND. PLENTY TO EXPLORE.</p>{navigation.map(item => item.href.includes('#') && pathname === '/' ? <a key={item.href} href={item.href.slice(1)}>{item.label}<ArrowUpRight /></a> : <Link key={item.href} href={item.href} onClick={close}>{item.label}<ArrowUpRight /></Link>)}</div>}
+    {menu && <div ref={dialog} className="mobile-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Navigation"><button onClick={close} aria-label="Close menu"><X /></button><p className="eyebrow">A LITTLE ISLAND. PLENTY TO EXPLORE.</p>{navigation.map(item => item.href.includes('#') && pathname === '/' ? <a key={item.href} href={item.href.slice(1)}>{item.label}<ArrowUpRight /></a> : <Link key={item.href} href={item.href} onClick={close}>{item.label}<ArrowUpRight /></Link>)}{provider==='medusa'&&<Link href="/account" onClick={close}>Your account<ArrowUpRight/></Link>}</div>}
     {cart && <div className="cart-overlay" onClick={close}><div ref={dialog} className="cart-drawer" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Your bag" onClick={event => event.stopPropagation()}><div className="cart-header"><h2>Your little collection.</h2><button onClick={close} aria-label="Close bag"><X /></button></div><p className="demo-note">{live ? 'A little warmth, ready for your everyday.' : 'Preview bag · illustrative prices · checkout is not enabled.'}</p>{!total ? <div className="empty"><Leaf size={48} /><h3>A little wonder awaits.</h3><Link href="/shop" onClick={close} className="button dark">Explore the collection <ArrowUpRight /></Link></div> : <>
       {lines.map(line => <div className="cart-item" key={line.id}><Link href={`/products/${line.handle}`} onClick={close} aria-label={`View ${line.title}`}><img src={line.image} alt={line.title} /></Link><div><Link href={`/products/${line.handle}`} onClick={close}><h3>{line.title}</h3></Link><p>{money(line.price)} · {line.variant === 'Default Title' ? 'Original' : line.variant}</p><div className="quantity"><button disabled={busy} aria-label={`Remove one ${line.title}, ${line.variant}`} onClick={() => quantity(line.id, -1)}><Minus size={14} /></button><span aria-live="polite">{line.quantity}</span><button disabled={busy || line.quantity >= 99} aria-label={`Add one ${line.title}, ${line.variant}`} onClick={() => quantity(line.id, 1)}><Plus size={14} /></button></div></div></div>)}
-      <div className="cart-total"><span>{live ? 'Estimated subtotal' : 'Illustrative subtotal'}</span><span>{money({ amount: String(lines.reduce((sum, line) => sum + Number(line.price.amount) * line.quantity, 0)), currencyCode: lines[0].price.currencyCode })}</span></div><p>{live ? 'Availability, final prices, shipping, and taxes are confirmed at checkout.' : 'This is a preview collection. No order or payment will be collected.'}</p><button className="button dark checkout-button" disabled={!live || busy} onClick={checkout}>{busy ? 'Opening secure checkout…' : live ? 'Continue to checkout' : 'Checkout available at launch'}<ArrowUpRight size={18} /></button><button className="continue-shopping" onClick={close}>Keep exploring</button>
+      <div className="cart-total"><span>{live ? 'Estimated subtotal' : 'Illustrative subtotal'}</span><span>{money({ amount: String(lines.reduce((sum, line) => sum + Number(line.price.amount) * line.quantity, 0)), currencyCode: lines[0].price.currencyCode })}</span></div><p>{live ? demo?'A showcase order. No real payment will be collected.':'Availability, final prices, shipping, and taxes are confirmed at checkout.' : 'This is a preview collection. No order or payment will be collected.'}</p><button className="button dark checkout-button" disabled={!live || busy} onClick={checkout}>{busy ? 'Preparing your checkout…' : live ? 'Continue to checkout' : 'Checkout available at launch'}<ArrowUpRight size={18} /></button><button className="continue-shopping" onClick={close}>Keep exploring</button>
     </>}{error && <p role="alert" className="form-error">{error}</p>}</div></div>}
   </Bag.Provider>;
 }

@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
+  devIndicators: false,
   async redirects() {
     return [
       { source: '/blogs/:blog/:handle', destination: '/blog/:handle', permanent: true },

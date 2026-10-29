@@ -8,3 +8,8 @@ out/
 
 playwright-report/
 test-results/
+
+.demo/
+backend/.medusa/
+backend/.cache/
+backend/static/

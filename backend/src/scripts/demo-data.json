@@ -1,0 +1,170 @@
+{
+  "demoProducts": [
+    {
+      "id": "preview-quills",
+      "handle": "whole-ceylon-cinnamon",
+      "title": "The original quill",
+      "productType": "Whole cinnamon",
+      "description": "Fine, delicate layers. A quietly beautiful aroma. Our whole Ceylon cinnamon quills bring a gentle sweetness to the things you take your time with. Steep in tea, slip into a slow-simmering pot, or make a fragrant syrup for a little everyday wonder.",
+      "featuredImage": {
+        "url": "/images/cinnamon.jpg",
+        "altText": "Layered whole Ceylon cinnamon quills"
+      },
+      "images": [
+        {
+          "url": "/images/cinnamon.jpg",
+          "altText": "Layered whole Ceylon cinnamon quills"
+        },
+        {
+          "url": "/images/hero.jpg",
+          "altText": "Cinnamon still life in warm light"
+        }
+      ],
+      "variants": [
+        {
+          "id": "preview-quills-50",
+          "title": "50 g",
+          "availableForSale": true,
+          "price": {
+            "amount": "18",
+            "currencyCode": "USD"
+          }
+        },
+        {
+          "id": "preview-quills-100",
+          "title": "100 g",
+          "availableForSale": true,
+          "price": {
+            "amount": "32",
+            "currencyCode": "USD"
+          }
+        }
+      ],
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "demo": true
+    },
+    {
+      "id": "preview-ground",
+      "handle": "ground-ceylon-cinnamon",
+      "title": "A finer kind of spice",
+      "productType": "Ground cinnamon",
+      "description": "Softly aromatic and beautifully versatile. Finely ground Ceylon cinnamon lends its delicate warmth to breakfast bowls, weekend bakes, and that first cup of coffee. A small pinch is a lovely place to start; let your own taste guide the rest.",
+      "featuredImage": {
+        "url": "/images/powder.jpg",
+        "altText": "Finely ground cinnamon in a ceramic bowl"
+      },
+      "images": [
+        {
+          "url": "/images/powder.jpg",
+          "altText": "Finely ground cinnamon in a ceramic bowl"
+        }
+      ],
+      "variants": [
+        {
+          "id": "preview-ground-75",
+          "title": "75 g",
+          "availableForSale": true,
+          "price": {
+            "amount": "14",
+            "currencyCode": "USD"
+          }
+        },
+        {
+          "id": "preview-ground-150",
+          "title": "150 g",
+          "availableForSale": true,
+          "price": {
+            "amount": "25",
+            "currencyCode": "USD"
+          }
+        }
+      ],
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "demo": true
+    }
+  ],
+  "demoArticles": [
+    {
+      "id": "journal-1",
+      "handle": "the-beauty-of-a-slower-morning",
+      "title": "The beauty of a slower morning.",
+      "excerpt": "A cup, a quill, and a few unhurried minutes. An invitation to begin the day a little differently.",
+      "tags": ["Rituals"],
+      "image": {
+        "url": "/images/hero.jpg",
+        "altText": "Ceylon cinnamon quills in a softly lit still life"
+      },
+      "publishedAt": "2026-10-20T08:00:00Z",
+      "author": "The Ceylon journal",
+      "readTime": 3,
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "contentHtml": "<p>There is a small window before the day takes over. Before the messages, the lists, the getting somewhere. We like to give a little of that time to something simple.</p><h2>Begin with the kettle.</h2><p>Choose a favourite cup. Place a small cinnamon quill inside and pour over freshly boiled water. Leave it to steep for five to ten minutes, tasting as you go. The flavour is gentle: softly woody, lightly sweet, never in a hurry.</p><p>You can also add a quill to your usual black tea, or steep it with a slice of fresh ginger. There is no perfect recipe here. Just a starting point for finding your own.</p><blockquote>A little warmth. A little space. A morning that belongs to you.</blockquote><h2>Make room for the ordinary.</h2><p>You do not need a new routine, a special teapot, or a quiet house. A few minutes by a window will do. Notice the aroma as it rises. Let the cup warm your hands.</p><h2>A note on the quill.</h2><p>Whole cinnamon gives up its aroma slowly, which makes it particularly lovely for infusions. Remove the quill before drinking, and adjust the steeping time to your taste. Enjoy your drink fresh.</p><p>Some mornings will still be rushed. That is fine too. The kettle will be there tomorrow.</p>"
+    },
+    {
+      "id": "journal-2",
+      "handle": "whole-or-ground-a-kitchen-guide",
+      "title": "Whole or ground? Follow your curiosity.",
+      "excerpt": "Two expressions of the same beautiful spice. Here is how to find the right one for your kitchen.",
+      "tags": ["Kitchen notes"],
+      "image": {
+        "url": "/images/powder.jpg",
+        "altText": "Ground cinnamon ready for sprinkling"
+      },
+      "publishedAt": "2026-10-14T08:00:00Z",
+      "author": "The Ceylon journal",
+      "readTime": 3,
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "contentHtml": "<p>Whole quills and ground cinnamon begin with the same inner bark, but they behave differently in the kitchen. Think about how you want the flavour to meet your food.</p><h2>Whole: let it unfold.</h2><p>Use a quill when there is time and liquid. A pot of tea, a gently simmering curry, a fruit compote, or a fragrant poaching syrup. The quill infuses the dish gradually and can be lifted out before serving.</p><p>For a simple syrup, warm equal parts sugar and water with a small quill until the sugar dissolves. Remove from the heat, let it steep to taste, and strain. Refrigerate promptly and use within a few days.</p><h2>Ground: a finishing touch.</h2><p>Choose ground cinnamon when you want the spice to become part of the dish. Stir it into cake batter, fold it through pancake mix, or dust it lightly over porridge and sliced fruit.</p><p>Start with a small amount. You can always add more, and the delicate flavour often needs less company than you might expect.</p><h2>Keep the aroma close.</h2><p>Store either form in a well-sealed container, away from heat, moisture, and direct sunlight. Buy amounts you will enjoy while the aroma is fresh. A cool cupboard is a better home than the shelf above the stove.</p>"
+    },
+    {
+      "id": "journal-3",
+      "handle": "a-craft-written-in-layers",
+      "title": "A craft, written in layers.",
+      "excerpt": "Look closely at a cinnamon quill and you will find the story of a patient, practiced craft.",
+      "tags": ["Origin & craft"],
+      "image": {
+        "url": "/images/craft.jpg",
+        "altText": "Concept illustration of hands working cinnamon bark"
+      },
+      "publishedAt": "2026-10-06T08:00:00Z",
+      "author": "The Ceylon journal",
+      "readTime": 3,
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "contentHtml": "<p>At first glance, a cinnamon quill is a familiar thing. Look closer and it becomes something more intricate: delicate layers tucked inside one another, each a trace of the work that shaped it.</p><h2>From bark to quill.</h2><p>Ceylon cinnamon comes from the inner bark of Cinnamomum verum. The outer surface is carefully removed, and the tender inner bark is peeled away. The pieces are layered and rolled together before drying into the quills we recognise.</p><p>It is skilled work, learned through practice. The thinness of the bark asks for a steady hand, and the finished quill holds a little of that attention in its structure.</p><h2>A place with a particular character.</h2><p>Sri Lanka has a long association with true cinnamon. Its climate and the knowledge of its growers and peelers are part of the spice’s story. Origin is more than a name on a packet; it is a reason to ask where an ingredient comes from and who made it possible.</p><blockquote>Sometimes the smallest things hold the longest stories.</blockquote><h2>Bring that attention home.</h2><p>You do not need to be an expert to appreciate a good ingredient. Open a jar, notice the aroma, and try it in something simple. Curiosity is a fine place to begin.</p><p><em>The accompanying craft photograph is concept imagery, rather than a record of a particular farm or producer.</em></p>"
+    },
+    {
+      "id": "journal-4",
+      "handle": "cinnamon-pears-for-the-shared-table",
+      "title": "Something warm for the shared table.",
+      "excerpt": "Gently simmered pears, a little cinnamon, and a dessert that asks very little of you.",
+      "tags": ["Recipes"],
+      "image": {
+        "url": "/images/cinnamon.jpg",
+        "altText": "Whole cinnamon quills for slow cooking"
+      },
+      "publishedAt": "2026-09-28T08:00:00Z",
+      "author": "The Ceylon journal",
+      "readTime": 4,
+      "seo": {
+        "title": null,
+        "description": null
+      },
+      "contentHtml": "<p>Some of the nicest things to share are the simplest. These gently simmered pears need a handful of ingredients and a little time on the stove.</p><h2>For a table of four.</h2><ul><li>4 firm, ripe pears</li><li>750 ml water, or enough to almost cover the fruit</li><li>3 tablespoons sugar, adjusted to taste</li><li>1–2 small Ceylon cinnamon quills</li><li>A strip of lemon peel</li></ul><h2>Let the pot do the work.</h2><p>Peel the pears, halve them, and remove the cores. Put the water, sugar, cinnamon, and lemon peel in a saucepan. Warm gently until the sugar dissolves.</p><p>Add the pears. Keep at a gentle simmer for about 15–25 minutes, turning occasionally, until a knife slips easily into the flesh. The timing depends on the size and ripeness of your pears.</p><p>Lift the fruit into a serving bowl. If you like, simmer the liquid for a few more minutes to concentrate it, then spoon it over the pears. Remove the quills and lemon peel before serving.</p><h2>A little extra.</h2><p>Serve warm with yoghurt, vanilla ice cream, or simply a spoonful of the cooking liquid. Refrigerate any leftovers promptly and enjoy within a couple of days.</p><p>No elaborate finish required. Good company is quite enough.</p>"
+    }
+  ]
+}

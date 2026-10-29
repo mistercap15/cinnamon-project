@@ -1,9 +1,10 @@
 import 'server-only';
+import { medusaEnabled, medusaProducts, medusaProduct, medusaArticles, medusaArticle } from './medusa';
 import { cache } from 'react';
 import { demoArticles, demoProducts } from './demo';
 import type { Article, Product, ProductImage, Variant } from './types';
 
-export function commerceConfigured() { return Boolean(process.env.SHOPIFY_STORE_DOMAIN); }
+export function commerceConfigured() { return medusaEnabled() ? Boolean(process.env.MEDUSA_BACKEND_URL && process.env.MEDUSA_PUBLISHABLE_KEY) : Boolean(process.env.SHOPIFY_STORE_DOMAIN); }
 
 export async function storefront<T>(query: string, variables: Record<string, unknown> = {}, uncached = false): Promise<T> {
   const domain = process.env.SHOPIFY_STORE_DOMAIN ?? '';
@@ -29,6 +30,7 @@ const productFields = `id handle title productType description seo { title descr
 function mapProduct(p: ShopifyProduct): Product { return { ...p, productType: p.productType || 'Cinnamon', images: p.images.nodes, variants: p.variants.nodes, demo: false }; }
 
 export const getProducts = cache(async (): Promise<Product[]> => {
+  if (medusaEnabled()) return medusaProducts();
   if (!commerceConfigured()) return demoProducts;
   const products: Product[] = [];
   let cursor: string | null = null;
@@ -41,6 +43,7 @@ export const getProducts = cache(async (): Promise<Product[]> => {
 });
 
 export const getProduct = cache(async (handle: string): Promise<Product | null> => {
+  if (medusaEnabled()) return medusaProduct(handle);
   if (!commerceConfigured()) return demoProducts.find(p => p.handle === handle) ?? null;
   const data = await storefront<{ product: ShopifyProduct | null }>(`query Product($handle: String!) { product(handle: $handle) { ${productFields} } }`, { handle });
   return data.product ? mapProduct(data.product) : null;
@@ -52,6 +55,7 @@ function mapArticle(a: ShopifyArticle): Article {
   return { ...a, excerpt: a.excerpt || a.content.slice(0, 180), author: a.authorV2?.name || 'The Ceylon journal', readTime: Math.max(1, Math.ceil(a.content.split(/\s+/).length / 200)) };
 }
 export const getArticles = cache(async (): Promise<Article[]> => {
+  if (medusaEnabled()) return medusaArticles();
   if (!commerceConfigured()) return demoArticles;
   const articles: Article[] = [];
   let cursor: string | null = null;
@@ -64,6 +68,7 @@ export const getArticles = cache(async (): Promise<Article[]> => {
   return articles;
 });
 export const getArticle = cache(async (handle: string): Promise<Article | null> => {
+  if (medusaEnabled()) return medusaArticle(handle);
   if (!commerceConfigured()) return demoArticles.find(a => a.handle === handle) ?? null;
   const data = await storefront<{ blog: { articleByHandle: ShopifyArticle | null } | null }>(`query Article($blog: String!, $handle: String!) { blog(handle: $blog) { articleByHandle(handle: $handle) { ${articleFields} } } }`, { blog: process.env.SHOPIFY_BLOG_HANDLE || 'journal', handle });
   return data.blog?.articleByHandle ? mapArticle(data.blog.articleByHandle) : null;
