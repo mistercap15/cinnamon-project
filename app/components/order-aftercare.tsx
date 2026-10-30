@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "./button-icon";
 import { useState } from "react";
 import { ArrowUpRight, Package, RotateCcw, Check } from "lucide-react";
 import {
@@ -141,7 +142,7 @@ export function OrderAftercare({
                   </p>
                   <button
                     className="text-link"
-                    disabled={busy}
+                    aria-busy={busy} disabled={busy}
                     onClick={() =>
                       submit({ action: "withdraw", request_id: r.id })
                     }
@@ -311,10 +312,10 @@ export function OrderAftercare({
             </button>
             <button
               className="button dark"
-              disabled={busy || !Object.values(quantities).some((q) => q > 0)}
+              aria-busy={busy} disabled={busy || !Object.values(quantities).some((q) => q > 0)}
             >
               {busy ? "Sending…" : "Submit request"}
-              <ArrowUpRight size={17} />
+              <ButtonIcon loading={busy}><ArrowUpRight size={17} /></ButtonIcon>
             </button>
           </div>
         </form>

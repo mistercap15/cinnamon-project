@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "./button-icon";
 import { useMemo, useState } from "react";
 import {
   Elements,
@@ -167,6 +168,7 @@ function Payment({
       <button
         className="button dark stripe-pay-button"
         type="button"
+        aria-busy={busy}
         disabled={!stripe || !elements || !ready || busy}
         onClick={pay}
       >
@@ -175,7 +177,7 @@ function Payment({
           : paid
             ? "Finish confirming your order"
             : "Pay & place test order"}
-        <ArrowUpRight size={18} />
+        <ButtonIcon loading={busy}><ArrowUpRight size={18} /></ButtonIcon>
       </button>
     </div>
   );

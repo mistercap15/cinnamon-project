@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "../components/button-icon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -312,7 +313,7 @@ export function Checkout() {
                     <button
                       type="button"
                       className="text-link"
-                      disabled={busy}
+                      aria-busy={busy} disabled={busy}
                       onClick={() => setStep((s) => s - 1)}
                     >
                       <ArrowLeft size={15} />
@@ -322,7 +323,7 @@ export function Checkout() {
                   {!(step === 2 && data.payment?.provider === "stripe") && (
                     <button
                       className="button dark"
-                      disabled={busy || (step === 1 && !method)}
+                      aria-busy={busy} disabled={busy || (step === 1 && !method)}
                       type="submit"
                     >
                       {busy
@@ -332,7 +333,7 @@ export function Checkout() {
                           : step === 1
                             ? "Review your order"
                             : "Place demo order"}
-                      <ArrowUpRight size={18} />
+                      <ButtonIcon loading={busy}><ArrowUpRight size={18} /></ButtonIcon>
                     </button>
                   )}
                 </div>

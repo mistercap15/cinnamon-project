@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "../../components/button-icon";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -40,8 +41,8 @@ export function PaymentReturn() {
         </p>
         {error && (
           <>
-            <button className="button dark" disabled={busy} onClick={finish}>
-              Check again <ArrowUpRight size={17} />
+            <button className="button dark" aria-busy={busy} disabled={busy} onClick={finish}>
+              {busy ? "Checking payment…" : "Check again"} <ButtonIcon loading={busy}><ArrowUpRight size={17} /></ButtonIcon>
             </button>
             <Link className="text-link" href="/checkout">
               Return to checkout

@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "../components/button-icon";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -207,7 +208,7 @@ export function Account({ demo }: { demo: boolean }) {
                 {message}
               </p>
             )}
-            <button className="button dark" disabled={busy}>
+            <button className="button dark" aria-busy={busy} disabled={busy}>
               {busy
                 ? "A little moment…"
                 : mode === "register"
@@ -215,7 +216,7 @@ export function Account({ demo }: { demo: boolean }) {
                   : mode === "forgot"
                     ? "Send reset link"
                     : "Sign in"}
-              <ArrowUpRight size={18} />
+              <ButtonIcon loading={busy}><ArrowUpRight size={18} /></ButtonIcon>
             </button>
           </form>
           <div className="auth-switch">
@@ -281,7 +282,7 @@ export function Account({ demo }: { demo: boolean }) {
         </div>
         <button
           className="text-link"
-          disabled={busy}
+          aria-busy={busy} disabled={busy}
           onClick={async () => {
             await action({ action: "logout" });
             setMessage("");
@@ -369,7 +370,7 @@ export function Account({ demo }: { demo: boolean }) {
                   {!verifying ? (
                     <button
                       className="text-link"
-                      disabled={busy}
+                      aria-busy={busy} disabled={busy}
                       onClick={async () => {
                         if (await action({ action: "verify-request" }))
                           setVerifying(true);
@@ -400,8 +401,8 @@ export function Account({ demo }: { demo: boolean }) {
                           placeholder="6-digit code"
                         />
                       </label>
-                      <button className="button dark" disabled={busy}>
-                        Verify & find orders
+                      <button className="button dark" aria-busy={busy} disabled={busy}>
+                        {busy ? "Verifying…" : "Verify & find orders"}<ButtonIcon loading={busy}><ArrowUpRight size={17} /></ButtonIcon>
                       </button>
                     </form>
                   )}
@@ -461,7 +462,7 @@ export function Account({ demo }: { demo: boolean }) {
                   {data.orders.length < data.count && (
                     <button
                       className="button dark load-more"
-                      disabled={busy}
+                      aria-busy={busy} disabled={busy}
                       onClick={async () => {
                         setBusy(true);
                         try {
@@ -479,7 +480,7 @@ export function Account({ demo }: { demo: boolean }) {
                         }
                       }}
                     >
-                      More island moments <ArrowUpRight size={16} />
+                      {busy ? "Loading orders…" : "More island moments"} <ButtonIcon loading={busy}><ArrowUpRight size={16} /></ButtonIcon>
                     </button>
                   )}
                 </div>
@@ -549,8 +550,8 @@ export function Account({ demo }: { demo: boolean }) {
                     maxLength={30}
                   />
                 </label>
-                <button className="button dark" disabled={busy}>
-                  Save your details <Check size={17} />
+                <button className="button dark" aria-busy={busy} disabled={busy}>
+                  {busy ? "Saving…" : "Save your details"} <ButtonIcon loading={busy}><Check size={17} /></ButtonIcon>
                 </button>
               </form>
             </>
@@ -584,8 +585,8 @@ export function Account({ demo }: { demo: boolean }) {
                     >
                       Cancel
                     </button>
-                    <button className="button dark" disabled={busy}>
-                      Save address <Check size={17} />
+                    <button className="button dark" aria-busy={busy} disabled={busy}>
+                      {busy ? "Saving…" : "Save address"} <ButtonIcon loading={busy}><Check size={17} /></ButtonIcon>
                     </button>
                   </div>
                 </form>
@@ -614,7 +615,7 @@ export function Account({ demo }: { demo: boolean }) {
                           </button>
                           <button
                             className="text-link"
-                            disabled={busy}
+                            aria-busy={busy} disabled={busy}
                             onClick={() =>
                               action({ action: "address-remove", id: a.id })
                             }

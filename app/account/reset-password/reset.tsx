@@ -1,4 +1,5 @@
 "use client";
+import { ButtonIcon } from "../../components/button-icon";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Leaf } from "lucide-react";
@@ -88,9 +89,9 @@ export function ResetPassword() {
                 {error}
               </p>
             )}
-            <button disabled={busy || !token} className="button dark">
+            <button aria-busy={busy} disabled={busy || !token} className="button dark">
               {busy ? "Updating…" : "Save your new password"}
-              <ArrowUpRight size={18} />
+              <ButtonIcon loading={busy}><ArrowUpRight size={18} /></ButtonIcon>
             </button>
             <Link href="/account" className="text-link">
               Request a new reset link
