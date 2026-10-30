@@ -7,7 +7,7 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "test": "node scripts/run-with-node.mjs --test tests/shopify.test.cjs tests/node-runtime.test.cjs",
+    "test": "node scripts/run-with-node.mjs --test tests/shopify.test.cjs tests/node-runtime.test.cjs tests/order-status.test.cjs tests/return-policy.test.cjs",
     "test:e2e": "playwright test",
     "demo:setup": "node scripts/run-with-node.mjs scripts/demo-setup.mjs",
     "demo": "node scripts/run-with-node.mjs scripts/demo.mjs",

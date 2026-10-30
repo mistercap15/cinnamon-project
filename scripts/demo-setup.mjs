@@ -23,6 +23,7 @@ try {
     await run(["db:generate", "journal"]);
   await run(["db:migrate"]);
   await run(["exec", "./src/scripts/seed.ts"]);
+  await run(["exec", "./src/scripts/seed-aftercare.ts"]);
   if (!existsSync(path.join(root, ".demo/admin-ready"))) {
     await run(["user", "-e", "admin@ceylon.local", "-p", c.adminPassword]);
     writeFileSync(path.join(root, ".demo/admin-ready"), "ready");

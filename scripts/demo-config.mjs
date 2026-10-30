@@ -29,6 +29,7 @@ export function backendEnv() {
     ...process.env,
     DATABASE_URL: `postgres://ceylon:${c.databasePassword}@127.0.0.1:5439/ceylon`,
     JWT_SECRET: c.jwtSecret,
+    AFTERCARE_API_SECRET: c.sessionSecret,
     COOKIE_SECRET: c.cookieSecret,
     DEMO_MODE: "true",
     FRONTEND_URL: "http://localhost:3014",

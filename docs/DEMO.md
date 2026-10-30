@@ -30,6 +30,12 @@ Seeded photography is served from the local frontend. Images uploaded through Ad
 
 In **Orders**, find the new order by email or native order number. Its manual payment starts **Authorized**. Open it to capture the demo payment and create a fulfillment using native Medusa controls. These operations update local records only. Refresh the buyer’s order details to see status changes. Real payment capture, tracking, refunds and carrier bookings require production providers and separate validation.
 
+The storefront shows fulfillment progress (**Fulfilled**, **Shipped**, **Delivered**) separately from payment status. Medusa’s administrative order status can remain `pending` after delivery. Once a guest order is linked through email verification, the customer can sign in again and open it without the original guest checkout session.
+
+### Returns and refunds
+
+After marking a demo order delivered, open its storefront details and submit a return request. Review it in **Returns & care** in Medusa Admin, then receive approved physical returns and issue refunds from the native order page. Refresh the customer order to see receipt and refund updates. Follow [RETURNS.md](RETURNS.md) for the policy, quarantine inventory, and full walkthrough.
+
 ### Journal
 
 Open **Journal** in the sidebar. Click **New story**, enter a unique lowercase handle, title, category, author, excerpt, image URL, and article HTML (`<p>`, `<h2>`, `<ul>` etc.). Save as a draft to keep it private. Check **Published on storefront** and save to show it in `/blog`; edit to revise or uncheck to unpublish. Refresh the storefront after saving. Unsafe scripts and event handlers are removed when the article is rendered.

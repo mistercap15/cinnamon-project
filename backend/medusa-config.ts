@@ -16,5 +16,8 @@ module.exports = defineConfig({
     },
   },
   admin: { backendUrl: process.env.BACKEND_URL || "http://localhost:9000" },
-  modules: [{ resolve: "./src/modules/journal" }],
+  modules: [
+    { resolve: "./src/modules/journal" },
+    { resolve: "./src/modules/aftercare" },
+  ],
 });

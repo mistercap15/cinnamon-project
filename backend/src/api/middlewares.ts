@@ -1,3 +1,4 @@
+import { MedusaError } from "@medusajs/framework/utils";
 import {
   defineMiddlewares,
   authenticate,
@@ -20,6 +21,25 @@ const post = z.object({
 });
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/admin/aftercare*",
+      middlewares: [authenticate("user", ["session", "bearer", "api-key"])],
+    },
+    // The public native return route accepts an order ID alone. Require a
+    // signed-in customer here, then force customer requests through review.
+    {
+      matcher: "/store/returns",
+      method: "POST",
+      middlewares: [
+        (_req, _res, next) =>
+          next(
+            new MedusaError(
+              MedusaError.Types.NOT_ALLOWED,
+              "Submit a return request from your Ceylon order page for review.",
+            ),
+          ),
+      ],
+    },
     {
       matcher: "/store/account/*",
       middlewares: [authenticate("customer", ["session", "bearer"])],

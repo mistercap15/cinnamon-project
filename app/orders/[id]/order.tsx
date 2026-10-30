@@ -1,12 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, ArrowUpRight, Leaf, Package, Truck } from "lucide-react";
+import { OrderAftercare } from "../../components/order-aftercare";
+import {
+  Check,
+  ArrowUpRight,
+  Leaf,
+  Package,
+  Truck,
+  Clock,
+  CircleX,
+} from "lucide-react";
 import {
   commerce,
   amount,
   orderDate,
   statusLabel,
+  orderProgress,
+  orderMessage,
 } from "../../lib/commerce-client";
 export function OrderDetails({ id }: { id: string }) {
   const [data, setData] = useState<any>(null),
@@ -41,23 +52,29 @@ export function OrderDetails({ id }: { id: string }) {
     );
   const { order, demo } = data,
     shipping = order.shipping_address;
+  const message = orderMessage(order);
+  const StatusIcon = {
+    check: Check,
+    truck: Truck,
+    package: Package,
+    clock: Clock,
+    cancel: CircleX,
+  }[message.icon];
   return (
     <main id="main-content" className="commerce-page order-page">
       <div className="order-thank-you">
         <span className="order-check">
-          <Check size={30} />
+          <StatusIcon size={30} />
         </span>
         <p className="eyebrow">
           ORDER #{order.display_id} / {orderDate(order.created_at)}
         </p>
         <h1>
-          A little warmth.
+          {message.icon === "cancel" ? "An order update." : "A little warmth."}
           <br />
-          <em>On its way.</em>
+          <em>{message.headline}</em>
         </h1>
-        <p>
-          Your order is placed. Thank you for making a little room for Ceylon.
-        </p>
+        <p>{message.message}</p>
         {demo && (
           <p className="order-demo-note">
             Showcase order · no real payment collected or shipment arranged.
@@ -68,7 +85,7 @@ export function OrderDetails({ id }: { id: string }) {
         <div>
           <Package size={21} />
           <span>
-            Order status<strong>{statusLabel(order.status)}</strong>
+            Order status<strong>{orderProgress(order)}</strong>
           </span>
         </div>
         <div>
@@ -105,7 +122,10 @@ export function OrderDetails({ id }: { id: string }) {
                   {item.variant_title} · Quantity {item.quantity}
                 </p>
               </div>
-              <span>{amount(item.total, order.currency_code)}</span>
+              <span>
+                {amount(item.unit_price, order.currency_code)}
+                <small>each</small>
+              </span>
             </article>
           ))}
           <div className="receipt-address">
@@ -144,11 +164,42 @@ export function OrderDetails({ id }: { id: string }) {
                 <dd>−{amount(order.discount_total, order.currency_code)}</dd>
               </div>
             )}
+            {Number(order.credit_line_total) > 0 && (
+              <div>
+                <dt>Order credits</dt>
+                <dd>−{amount(order.credit_line_total, order.currency_code)}</dd>
+              </div>
+            )}
             <div className="grand-total">
-              <dt>Total</dt>
+              <dt>
+                {data.aftercare?.requests?.length
+                  ? "Current order total"
+                  : "Total"}
+              </dt>
               <dd>{amount(order.total, order.currency_code)}</dd>
             </div>
           </dl>
+          {data.aftercare?.refunded > 0 && (
+            <dl className="order-totals refund-summary">
+              <div>
+                <dt>Originally paid</dt>
+                <dd>{amount(data.aftercare.paid, order.currency_code)}</dd>
+              </div>
+              <div>
+                <dt>Refunded</dt>
+                <dd>−{amount(data.aftercare.refunded, order.currency_code)}</dd>
+              </div>
+              <div>
+                <dt>Net paid</dt>
+                <dd>
+                  {amount(
+                    Math.max(0, data.aftercare.paid - data.aftercare.refunded),
+                    order.currency_code,
+                  )}
+                </dd>
+              </div>
+            </dl>
+          )}
           <Leaf size={20} />
           <p className="receipt-account-note">
             Keep your island moments together. Create an account or sign in with
@@ -159,6 +210,15 @@ export function OrderDetails({ id }: { id: string }) {
           </Link>
         </aside>
       </div>
+      {data.aftercare && (
+        <OrderAftercare
+          key={id}
+          id={id}
+          currency={order.currency_code}
+          initial={data.aftercare}
+          demo={demo}
+        />
+      )}
       <div className="order-continue">
         <Link href="/shop" className="text-link">
           A little more to discover <ArrowUpRight size={18} />

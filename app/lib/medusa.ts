@@ -12,7 +12,12 @@ export class CommerceError extends Error {
 }
 export async function medusa<T = any>(
   path: string,
-  options: { method?: string; body?: unknown; token?: string } = {},
+  options: {
+    method?: string;
+    body?: unknown;
+    token?: string;
+    headers?: Record<string, string>;
+  } = {},
 ): Promise<T> {
   const origin = process.env.MEDUSA_BACKEND_URL;
   if (!origin || !process.env.MEDUSA_PUBLISHABLE_KEY)
@@ -30,6 +35,7 @@ export async function medusa<T = any>(
     headers: {
       "Content-Type": "application/json",
       "x-publishable-api-key": process.env.MEDUSA_PUBLISHABLE_KEY,
+      ...options.headers,
       ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
     },
     ...(options.body !== undefined

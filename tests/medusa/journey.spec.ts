@@ -58,6 +58,9 @@ async function order(page: Page, email: string, saved = false) {
     .click();
   await page.waitForURL("**/orders/order_*");
   await expect(page.locator(".order-thank-you")).toBeVisible();
+  await expect(page.locator(".order-thank-you h1")).toContainText(
+    "Order received.",
+  );
   return page.url().split("/").pop()!;
 }
 async function inbox(page: Page, email: string, subject: string) {
@@ -89,7 +92,7 @@ test("guest order, verified history, account details, addresses, password reset 
   const id = await order(page, email);
   await page.reload();
   await expect(page.locator(".order-thank-you")).toBeVisible();
-  if (info.project.name === "desktop") {
+  {
     const config = JSON.parse(readFileSync(".demo/config.json", "utf8")),
       backend = "http://localhost:9000";
     const login = await page.request.post(`${backend}/auth/user/emailpass`, {
@@ -117,7 +120,9 @@ test("guest order, verified history, account details, addresses, password reset 
       {
         headers,
         data: {
-          location_id: locations.stock_locations[0].id,
+          location_id: locations.stock_locations.find(
+            (l: any) => l.name === "Ceylon studio",
+          ).id,
           shipping_option_id:
             detail.order.shipping_methods[0].shipping_option_id,
           items: detail.order.items.map((item: any) => ({
@@ -130,8 +135,51 @@ test("guest order, verified history, account details, addresses, password reset 
     );
     expect(result.ok(), await result.text()).toBe(true);
     await page.reload();
+    await expect(page.locator(".order-thank-you h1")).toContainText(
+      "Ready for dispatch.",
+    );
+    const fulfilled = await (
+      await page.request.get(
+        `${backend}/admin/orders/${id}?fields=*items,*fulfillments`,
+        { headers },
+      )
+    ).json();
+    const fulfillmentId = fulfilled.order.fulfillments[0].id;
+    result = await page.request.post(
+      `${backend}/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments`,
+      {
+        headers,
+        data: {
+          items: detail.order.items.map((item: any) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+          no_notification: true,
+        },
+      },
+    );
+    expect(result.ok(), await result.text()).toBe(true);
+    await page.reload();
+    await expect(page.locator(".order-thank-you h1")).toContainText(
+      "On its way.",
+    );
+    result = await page.request.post(
+      `${backend}/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered`,
+      {
+        headers,
+        data: { no_notification: true },
+      },
+    );
+    expect(result.ok(), await result.text()).toBe(true);
+    await page.reload();
     await expect(page.locator(".order-overview")).toContainText("Captured");
-    await expect(page.locator(".order-overview")).toContainText("Fulfilled");
+    await expect(page.locator(".order-overview")).toContainText("Delivered");
+    await expect(page.locator(".order-thank-you h1")).toContainText(
+      "Delivered.",
+    );
+    await expect(page.locator(".order-thank-you h1")).not.toContainText(
+      "On its way.",
+    );
   }
   const outsider = await browser.newContext();
   const response = await outsider.request.get(
@@ -199,7 +247,29 @@ test("guest order, verified history, account details, addresses, password reset 
     .getByRole("button", { name: "Verify & find orders", exact: true })
     .click();
   await expect(page.locator(".order-history-card")).toHaveCount(1);
+  await expect(page.locator(".order-history-card .status-badge")).toHaveText(
+    "Delivered",
+  );
+  // A fresh sign-in must authorize the linked order independently of the guest
+  // receipt proof. The original test kept that cookie and missed this bug.
+  await page.context().clearCookies();
+  await page.goto("/account");
+  await page
+    .getByRole("textbox", { name: "Email address", exact: true })
+    .fill(email);
+  await page.locator("input[name=password]").fill(password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.locator(".order-history-card .status-badge")).toHaveText(
+    "Delivered",
+  );
+  expect(
+    (await page.context().cookies()).some((c) => c.name === "ceylon_receipt"),
+  ).toBe(false);
   await page.getByRole("link", { name: "View order", exact: true }).click();
+  await expect(page.locator(".order-thank-you")).toBeVisible();
+  await expect(page.locator(".order-overview")).toContainText("Delivered");
+  await expect(page.locator(".order-overview")).toContainText("Captured");
+  await page.reload();
   await expect(page.locator(".order-thank-you")).toBeVisible();
   await page.goto("/account");
   await page

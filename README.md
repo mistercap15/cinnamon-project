@@ -53,6 +53,10 @@ Accounts support registration, login/logout, profile updates, saved address crea
 
 Native Medusa Admin manages products, variants, prices, inventory, order payments, and fulfillment. A custom **Journal** tab provides database-backed article drafts, editing, and publication. The storefront reads products and published stories dynamically without a rebuild. Product types become shop filters; article categories become journal filters. Rich article HTML is sanitized before rendering. See [docs/DEMO.md](docs/DEMO.md) for a client walkthrough and management instructions.
 
+### Returns and refunds
+
+Customers can request returns or report product issues from their order details. Medusa Admin’s **Returns & care** queue handles approval, decline, instructions, and resolutions without a physical return. Approved physical returns use native Medusa return records; receipt and full/partial refunds remain separate native Admin actions. The storefront tracks case progress and actual refund entries. A quarantine stock location keeps returned food out of storefront inventory. The configurable 14-day unopened change-of-mind policy is a demo default for client review, and does not restrict product-issue requests or statutory rights. See [docs/RETURNS.md](docs/RETURNS.md) for setup, policy, and a complete walkthrough.
+
 ### Architecture and deployment boundary
 
 `backend/` is a separate Medusa application with its own lockfile. `app/lib/medusa.ts` adapts its Store API to the existing storefront. `/api/commerce/*` is a same-origin Next.js backend-for-frontend with validated requests and private, uncached account responses. `scripts/demo*.mjs` orchestrate the local persistent PostgreSQL instance, backend, and storefront with generated machine-local secrets. The custom journal and email-verification records have committed migrations.

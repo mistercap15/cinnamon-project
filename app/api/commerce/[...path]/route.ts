@@ -1,3 +1,4 @@
+import { aftercare } from "../../../lib/aftercare";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -39,6 +40,10 @@ const address = z.object({
   country_code: z.string().length(2),
   phone: z.string().trim().min(6).max(30),
 });
+// Store API defaults omit customer_id. Request it explicitly so account order
+// access is checked against ownership, even without the guest receipt cookie.
+const orderFields =
+  "*items,*shipping_address,*shipping_methods,+customer_id,+payment_status,+fulfillment_status";
 const cartFields =
   "*items,*items.variant,*items.variant.product,*shipping_methods,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions,*region,*region.countries";
 async function getCart() {
@@ -80,6 +85,15 @@ async function authenticated() {
   const { customer } = await medusa("/store/customers/me", { token });
   return { token, customer };
 }
+async function ownedOrder(id: string) {
+  const receipt = await getPrivate("receipt");
+  let customer: any = null;
+  if (receipt?.orderId !== id) customer = (await authenticated()).customer;
+  const { order } = await medusa(`/store/orders/${id}?fields=${orderFields}`);
+  if (customer && order.customer_id !== customer.id)
+    throw new CommerceError("Order not found.", 404);
+  return order;
+}
 async function dispatch(request: Request, segments: string[]) {
   if (!medusaEnabled())
     throw new CommerceError("Medusa is not enabled for this storefront.", 503);
@@ -103,7 +117,7 @@ async function dispatch(request: Request, segments: string[]) {
           ),
         );
         const orders = await medusa(
-          `/store/orders?limit=10&offset=${offset}&fields=*items,*shipping_address,*shipping_methods`,
+          `/store/orders?limit=10&offset=${offset}&fields=${orderFields}`,
           { token },
         );
         const { region } = await medusa(
@@ -122,16 +136,9 @@ async function dispatch(request: Request, segments: string[]) {
       path.startsWith("orders/") &&
       /^order_[a-zA-Z0-9]+$/.test(segments[1] || "")
     ) {
-      const id = segments[1];
-      const receipt = await getPrivate("receipt");
-      let customer: any = null;
-      if (receipt?.orderId !== id) customer = (await authenticated()).customer;
-      const { order } = await medusa(
-        `/store/orders/${id}?fields=*items,*shipping_address,*shipping_methods`,
-      );
-      if (customer && order.customer_id !== customer.id)
-        throw new CommerceError("Order not found.", 404);
-      return json({ order, demo: isDemo() });
+      const id = segments[1],
+        order = await ownedOrder(id);
+      return json({ order, demo: isDemo(), aftercare: await aftercare(id) });
     }
     if (
       path === "inbox" &&
@@ -164,6 +171,46 @@ async function dispatch(request: Request, segments: string[]) {
     body = JSON.parse(raw);
   } catch {
     throw new CommerceError("Please send valid form data.", 400);
+  }
+  if (segments.length === 2 && segments[0] === "returns") {
+    const id = z
+      .string()
+      .regex(/^order_[a-zA-Z0-9]+$/)
+      .parse(segments[1]);
+    await ownedOrder(id);
+    const data =
+      body.action === "withdraw"
+        ? z
+            .object({
+              action: z.literal("withdraw"),
+              request_id: z.string().regex(/^rma_[a-zA-Z0-9]+$/),
+            })
+            .parse(body)
+        : z
+            .object({
+              action: z.literal("request"),
+              client_key: z.string().uuid(),
+              reason: z.enum([
+                "change_mind",
+                "damaged",
+                "incorrect",
+                "missing",
+                "quality",
+              ]),
+              note: z.string().trim().min(10).max(2000),
+              unopened: z.boolean(),
+              items: z
+                .array(
+                  z.object({
+                    id: z.string(),
+                    quantity: z.number().int().min(1).max(99),
+                  }),
+                )
+                .min(1)
+                .max(30),
+            })
+            .parse(body);
+    return json(await aftercare(id, data));
   }
   if (path === "cart") {
     const lines = z

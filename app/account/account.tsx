@@ -17,6 +17,7 @@ import {
   amount,
   orderDate,
   statusLabel,
+  orderProgress,
 } from "../lib/commerce-client";
 import { AddressFields } from "../components/address-fields";
 export function Account({ demo }: { demo: boolean }) {
@@ -424,7 +425,7 @@ export function Account({ demo }: { demo: boolean }) {
                           <p>{orderDate(order.created_at)}</p>
                         </div>
                         <span className="status-badge">
-                          {statusLabel(order.status)}
+                          {orderProgress(order)}
                         </span>
                       </div>
                       <div className="history-items">
