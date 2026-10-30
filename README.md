@@ -47,11 +47,15 @@ After setup, start everything with **`npm run demo`**. The demo, setup, backend-
 
 ### What works
 
-Guest checkout collects **email and phone** without requiring login. Sign-in uses native Medusa email/password accounts. Checkout uses real catalog prices, stock, shipping methods, payment collections, and native Medusa cart completion. Standard delivery is $5; express is $12. The USD prices, zero-tax demo region, sizes, and destinations are illustrative. The manual test provider authorizes a demo order without charging a card or arranging delivery. This is visibly labeled throughout checkout and receipts; live checkout is blocked when demo mode is off.
+Guest checkout collects **email and phone** without requiring login. Sign-in uses native Medusa email/password accounts. Checkout uses real catalog prices, stock, shipping methods, payment collections, and native Medusa cart completion. Standard delivery is $5; express is $12. The USD prices, zero-tax demo region, sizes, and destinations are illustrative. Without Stripe credentials, the manual test provider authorizes a demo order without charging a card or arranging delivery. With Stripe configured, its test Payment Element replaces the manual payment step and successful test payments are captured through Stripe. This is visibly labeled throughout checkout and receipts; live checkout is blocked when demo mode is off.
 
 Accounts support registration, login/logout, profile updates, saved address creation/editing/removal, password resets, order history, and order details. Earlier guest orders are linked **only after email ownership verification** using a hashed, expiring, attempt-limited code. Merely registering an email never reveals its past guest orders. Future guest orders can be linked on the next login after a successful verification. Guest receipts require an encrypted browser receipt cookie; account receipts require order ownership. Customer tokens and cart/receipt proofs are encrypted in HttpOnly cookies. The local inbox catches verification, reset, and order-confirmation emails; use fictitious addresses when presenting.
 
 Native Medusa Admin manages products, variants, prices, inventory, order payments, and fulfillment. A custom **Journal** tab provides database-backed article drafts, editing, and publication. The storefront reads products and published stories dynamically without a rebuild. Product types become shop filters; article categories become journal filters. Rich article HTML is sanitized before rendering. See [docs/DEMO.md](docs/DEMO.md) for a client walkthrough and management instructions.
+
+### Stripe test payments
+
+Stripe test checkout is available through the official Medusa provider and Stripe-hosted Payment Element fields. Add matching `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` test credentials to root `.env.local`, then restart `npm run demo`. The launcher also starts Stripe CLI webhook forwarding. Stripe mode enables only Stripe in the demo region; it never substitutes a manual payment if a gateway request fails. The local temporary sandbox is private, machine-specific and expires unless claimed. See [docs/STRIPE.md](docs/STRIPE.md) for credentials, test cards, refunds, webhooks and regression checks. No live keys or real charges are allowed in this showcase.
 
 ### Returns and refunds
 

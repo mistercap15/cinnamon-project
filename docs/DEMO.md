@@ -8,7 +8,7 @@ Follow the Medusa setup commands in the README once, then run `npm run demo`. Th
 
 1. Open **Shop**, explore whole/ground filters, open a product, select a size, and add to bag.
 2. Continue to checkout. Use a fictitious email such as `client-demo@example.com`, a name, delivery address, and phone number. No account is necessary. Demo destinations are Sri Lanka, India, the UK, and the US; all prices are USD.
-3. Select standard or express delivery, review the actual cart total, accept the demonstration notice, and place the order. The receipt displays the native order number and payment status. Reloading preserves access in this browser.
+3. Select standard or express delivery, review the actual cart total, accept the demonstration notice, and place the order. With Stripe enabled, enter a Stripe test card in its hosted fields, then confirm payment. The receipt displays the native order number and payment status. Reloading preserves access in this browser.
 4. Open the profile icon or **Your account** in mobile navigation. Create an account with the same email and a password of at least 10 characters. Guest history is private until verified.
 5. Click **Verify checkout email**. Open `/demo/inbox` in another tab, filter by that email, copy its six-digit code, and verify. The guest order now appears in the account. Codes expire after 10 minutes; five wrong attempts require a fresh code. Requests are spaced by at least one minute.
 6. Edit **Your details**, add/edit/remove a saved address, inspect an order, and place another order while signed in. It appears in the account automatically.

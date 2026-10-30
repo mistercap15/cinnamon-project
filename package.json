@@ -7,16 +7,19 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "test": "node scripts/run-with-node.mjs --test tests/shopify.test.cjs tests/node-runtime.test.cjs tests/order-status.test.cjs tests/return-policy.test.cjs",
+    "test": "node scripts/run-with-node.mjs --test tests/shopify.test.cjs tests/node-runtime.test.cjs tests/order-status.test.cjs tests/return-policy.test.cjs tests/stripe-config.test.cjs",
     "test:e2e": "playwright test",
     "demo:setup": "node scripts/run-with-node.mjs scripts/demo-setup.mjs",
     "demo": "node scripts/run-with-node.mjs scripts/demo.mjs",
     "backend:install": "npm ci --prefix backend",
     "backend:typecheck": "npm run typecheck --prefix backend",
     "test:medusa": "playwright test -c playwright.medusa.config.ts",
-    "backend:build": "node scripts/run-with-node.mjs scripts/backend-build.mjs"
+    "backend:build": "node scripts/run-with-node.mjs scripts/backend-build.mjs",
+    "test:stripe": "node scripts/run-with-node.mjs node_modules/@playwright/test/cli.js test -c playwright.stripe.config.ts"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^7.0.1",
+    "@stripe/stripe-js": "^10.2.0",
     "jose": "^6.2.14",
     "lenis": "^1.3.11",
     "lucide-react": "^0.468.0",
@@ -28,6 +31,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
+    "@stripe/cli": "^1.55.3",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

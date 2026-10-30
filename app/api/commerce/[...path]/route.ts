@@ -1,3 +1,5 @@
+import { paymentConfig } from "../../../lib/payment-config";
+import { trustedCommerce } from "../../../lib/aftercare";
 import { aftercare } from "../../../lib/aftercare";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -77,7 +79,37 @@ async function cartResponse() {
       ? await options(cart)
       : [],
     demo: isDemo(),
+    payment: paymentConfig(),
   };
+}
+async function preparePayment(cart: any, providerId: string) {
+  let collection = cart.payment_collection;
+  if (!collection)
+    collection = (
+      await medusa("/store/payment-collections", {
+        method: "POST",
+        body: { cart_id: cart.id },
+      })
+    ).payment_collection;
+  const existing = collection.payment_sessions?.find(
+    (p: any) => p.provider_id === providerId && p.status !== "canceled",
+  );
+  if (existing) return existing;
+  const result = await medusa(
+    `/store/payment-collections/${collection.id}/payment-sessions`,
+    {
+      method: "POST",
+      body: {
+        provider_id: providerId,
+        ...(providerId === "pp_stripe_stripe"
+          ? { data: { payment_method_types: ["card"] } }
+          : {}),
+      },
+    },
+  );
+  return result.payment_collection.payment_sessions?.find(
+    (p: any) => p.provider_id === providerId,
+  );
 }
 async function authenticated() {
   const token = await customerToken();
@@ -262,6 +294,10 @@ async function dispatch(request: Request, segments: string[]) {
     return json({ checkoutUrl: "/checkout" });
   }
   if (path === "checkout") {
+    if (body.action === "complete" && !(await getPrivate("cart"))) {
+      const receipt = await getPrivate("receipt");
+      if (receipt?.orderId) return json({ orderId: receipt.orderId });
+    }
     const cart = await getCart();
     if (body.action === "address") {
       const contact = email.parse(body.email),
@@ -292,6 +328,37 @@ async function dispatch(request: Request, segments: string[]) {
       });
       return json(await cartResponse());
     }
+    if (body.action === "payment") {
+      if (!isDemo() || paymentConfig().provider !== "stripe")
+        throw new CommerceError("Stripe test payments are not enabled.", 400);
+      if (
+        !cart.email ||
+        !cart.shipping_address?.address_1 ||
+        !cart.shipping_methods?.length
+      )
+        throw new CommerceError(
+          "Complete your delivery details before choosing payment.",
+          400,
+        );
+      if (cart.completed_at)
+        throw new CommerceError(
+          "This cart already has an order. Return to your order confirmation.",
+          409,
+        );
+      const session = await preparePayment(cart, "pp_stripe_stripe");
+      if (
+        typeof session?.data?.client_secret !== "string" ||
+        session.data.livemode !== false
+      )
+        throw new CommerceError(
+          "Unable to prepare a Stripe test payment.",
+          502,
+        );
+      return json({
+        ...(await cartResponse()),
+        clientSecret: session.data.client_secret,
+      });
+    }
     if (body.action === "complete") {
       if (!isDemo() || body.acknowledged !== true)
         throw new CommerceError(
@@ -307,23 +374,12 @@ async function dispatch(request: Request, segments: string[]) {
           "Please finish your contact and delivery details.",
           400,
         );
-      let collection = cart.payment_collection;
-      if (!collection)
-        collection = (
-          await medusa("/store/payment-collections", {
-            method: "POST",
-            body: { cart_id: cart.id },
-          })
-        ).payment_collection;
-      if (
-        !collection.payment_sessions?.some(
-          (p: any) => p.provider_id === "pp_system_default",
-        )
-      )
-        await medusa(
-          `/store/payment-collections/${collection.id}/payment-sessions`,
-          { method: "POST", body: { provider_id: "pp_system_default" } },
-        );
+      if (paymentConfig().provider === "stripe") {
+        if (!cart.completed_at)
+          await trustedCommerce("stripe-checkout", cart.id, {});
+      } else {
+        await preparePayment(cart, "pp_system_default");
+      }
       const result = await medusa(`/store/carts/${cart.id}/complete`, {
         method: "POST",
         body: {},

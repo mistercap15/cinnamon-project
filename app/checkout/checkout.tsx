@@ -13,6 +13,7 @@ import {
 import { commerce, amount } from "../lib/commerce-client";
 import { AddressFields } from "../components/address-fields";
 import { useBag } from "../components/storefront";
+import { StripePayment } from "../components/stripe-payment";
 export function Checkout() {
   const { clear } = useBag();
   const [data, setData] = useState<any>(null),
@@ -49,11 +50,18 @@ export function Checkout() {
         );
         setStep(1);
       } else if (step === 1) {
+        const shipping = await commerce("checkout", {
+          action: "shipping",
+          option_id: method,
+        });
         setData(
-          await commerce("checkout", { action: "shipping", option_id: method }),
+          shipping.payment?.provider === "stripe"
+            ? await commerce("checkout", { action: "payment" })
+            : shipping,
         );
         setStep(2);
       } else {
+        if (data.payment?.provider === "stripe") return;
         const result = await commerce("checkout", {
           action: "complete",
           acknowledged: form.get("acknowledged") === "on",
@@ -261,21 +269,37 @@ export function Checkout() {
                         Edit details
                       </button>
                     </div>
-                    <div className="demo-payment">
-                      <LockKeyhole size={23} />
-                      <div>
-                        <h3>Demo payment</h3>
-                        <p>
-                          This showcase uses Medusa’s manual test payment. No
-                          card details are needed and no money will be charged.
-                        </p>
-                      </div>
-                    </div>
-                    <label className="check-consent">
-                      <input type="checkbox" name="acknowledged" required />I
-                      understand this is a demonstration order and no payment
-                      will be collected.
-                    </label>
+                    {data.payment?.provider === "stripe" ? (
+                      <StripePayment
+                        key={data.clientSecret}
+                        publishableKey={data.payment.publishableKey}
+                        clientSecret={data.clientSecret}
+                        cart={cart}
+                        onComplete={(orderId) => {
+                          clear();
+                          router.push(`/orders/${orderId}`);
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <div className="demo-payment">
+                          <LockKeyhole size={23} />
+                          <div>
+                            <h3>Demo payment</h3>
+                            <p>
+                              This showcase uses Medusa’s manual test payment.
+                              No card details are needed and no money will be
+                              charged.
+                            </p>
+                          </div>
+                        </div>
+                        <label className="check-consent">
+                          <input type="checkbox" name="acknowledged" required />
+                          I understand this is a demonstration order and no
+                          payment will be collected.
+                        </label>
+                      </>
+                    )}
                   </>
                 )}
                 {error && (
@@ -295,20 +319,22 @@ export function Checkout() {
                       Back
                     </button>
                   )}
-                  <button
-                    className="button dark"
-                    disabled={busy || (step === 1 && !method)}
-                    type="submit"
-                  >
-                    {busy
-                      ? "A little moment…"
-                      : step === 0
-                        ? "Continue to delivery"
-                        : step === 1
-                          ? "Review your order"
-                          : "Place demo order"}
-                    <ArrowUpRight size={18} />
-                  </button>
+                  {!(step === 2 && data.payment?.provider === "stripe") && (
+                    <button
+                      className="button dark"
+                      disabled={busy || (step === 1 && !method)}
+                      type="submit"
+                    >
+                      {busy
+                        ? "A little moment…"
+                        : step === 0
+                          ? "Continue to delivery"
+                          : step === 1
+                            ? "Review your order"
+                            : "Place demo order"}
+                      <ArrowUpRight size={18} />
+                    </button>
+                  )}
                 </div>
               </form>
             </section>

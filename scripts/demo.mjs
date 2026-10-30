@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { startStripeListener } from "./stripe-listener.mjs";
 import { existsSync } from "node:fs";
 import { createServer } from "node:net";
 import { setTimeout as delay } from "node:timers/promises";
@@ -39,6 +40,7 @@ const stop = async (code = 0) => {
 };
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => stop());
 const run = (args, cwd, env) => {
+  if (stopping) throw new Error("Demo is shutting down.");
   const child = spawn(process.execPath, args, {
     cwd,
     env,
@@ -59,6 +61,35 @@ const run = (args, cwd, env) => {
   return child;
 };
 try {
+  await startStripeListener((child) => {
+    children.push(child);
+    child.on("exit", (code) => {
+      if (!stopping) {
+        console.error(
+          "Stripe webhook forwarding stopped. Restart the demo before accepting another test payment.",
+        );
+        stop(code || 1);
+      }
+    });
+  });
+  await new Promise((resolve, reject) => {
+    const sync = run(
+      [
+        "node_modules/@medusajs/cli/cli.js",
+        "exec",
+        "./src/scripts/sync-demo-payments.ts",
+      ],
+      path.join(root, "backend"),
+      backendEnv(),
+    );
+    sync.removeAllListeners("exit");
+    sync.once("exit", (code, signal) => {
+      children.splice(children.indexOf(sync), 1);
+      code !== 0 || signal
+        ? reject(new Error("Unable to configure the demo payment provider."))
+        : resolve();
+    });
+  });
   run(
     ["node_modules/@medusajs/cli/cli.js", "develop", "--host", "127.0.0.1"],
     path.join(root, "backend"),

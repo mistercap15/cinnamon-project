@@ -1771,3 +1771,32 @@
   padding-top: 20px;
   border-top: 1px solid var(--line);
 }
+.stripe-payment {
+  display: grid;
+  gap: 22px;
+  margin-top: 25px;
+}
+.stripe-payment .demo-payment {
+  margin: 0;
+}
+.stripe-loading,
+.stripe-test-hint {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.stripe-test-hint {
+  border: 1px dashed var(--line);
+  padding: 14px 16px;
+}
+.stripe-test-hint strong {
+  color: var(--ink);
+  white-space: nowrap;
+}
+.stripe-pay-button {
+  width: 100%;
+  margin-top: 5px;
+}
+.stripe-payment .check-consent {
+  margin: 0;
+}

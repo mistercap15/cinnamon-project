@@ -6,7 +6,10 @@ export async function commerce(path: string, body?: unknown) {
   });
   const data = await response.json();
   if (!response.ok)
-    throw new Error(data.error || "Please try again in a moment.");
+    throw Object.assign(
+      new Error(data.error || "Please try again in a moment."),
+      { status: response.status },
+    );
   return data;
 }
 export function amount(value: number | undefined, currency = "usd") {

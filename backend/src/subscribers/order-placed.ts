@@ -10,7 +10,7 @@ export default async function orderPlaced({
     await sendMail(
       order.email,
       `Your Ceylon order #${order.display_id}`,
-      `Thank you. Your showcase order #${order.display_id} has been placed.\nOrder reference: ${order.id}\nNo card has been charged.\nSign in or register using this email at ${process.env.FRONTEND_URL}/account, then verify your email to add guest orders to your history.`,
+      `Thank you. Your showcase order #${order.display_id} has been placed.\nOrder reference: ${order.id}\nThis is a test order. No real funds have moved.\nSign in or register using this email at ${process.env.FRONTEND_URL}/account, then verify your email to add guest orders to your history.`,
     );
 }
 export const config: SubscriberConfig = { event: "order.placed" };

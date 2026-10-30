@@ -13,7 +13,7 @@ export const reasons = {
   missing: "Missing item",
   quality: "Quality concern",
 };
-export function trusted(req: any) {
+export function trusted(req: any, namespace = "aftercare") {
   const time = String(req.headers["x-ceylon-time"] || ""),
     signature = String(req.headers["x-ceylon-signature"] || "");
   const secret = process.env.AFTERCARE_API_SECRET;
@@ -29,7 +29,7 @@ export function trusted(req: any) {
     );
   const expected = createHmac("sha256", secret)
     .update(
-      `aftercare-v1:${time}:${req.method}:${req.params.id}:${JSON.stringify(req.method === "GET" ? {} : req.body)}`,
+      `${namespace}-v1:${time}:${req.method}:${req.params.id}:${JSON.stringify(req.method === "GET" ? {} : req.body)}`,
     )
     .digest("hex");
   if (!timingSafeEqual(Buffer.from(expected), Buffer.from(signature)))
