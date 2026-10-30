@@ -2,7 +2,7 @@
 
 ## Start
 
-Use Node 24 and follow the Medusa setup commands in the README. Leave `npm run demo` running. Open http://localhost:3014. The existing landing page is preserved. This showcase creates real local Medusa records with a manual test payment; no money moves and no shipment is booked.
+Follow the Medusa setup commands in the README once, then run `npm run demo`. The launcher automatically uses an installed Node 24+ runtime, including Codex’s runtime on this Mac; no `nvm` or PATH prefix is needed. Leave `npm run demo` running. Open http://localhost:3014. The existing landing page is preserved. This showcase creates real local Medusa records with a manual test payment; no money moves and no shipment is booked.
 
 ## Buyer journey (about five minutes)
 

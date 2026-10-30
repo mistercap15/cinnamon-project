@@ -7,14 +7,14 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "test": "node --test tests/shopify.test.cjs",
+    "test": "node scripts/run-with-node.mjs --test tests/shopify.test.cjs tests/node-runtime.test.cjs",
     "test:e2e": "playwright test",
-    "demo:setup": "node scripts/demo-setup.mjs",
-    "demo": "node scripts/demo.mjs",
+    "demo:setup": "node scripts/run-with-node.mjs scripts/demo-setup.mjs",
+    "demo": "node scripts/run-with-node.mjs scripts/demo.mjs",
     "backend:install": "npm ci --prefix backend",
     "backend:typecheck": "npm run typecheck --prefix backend",
     "test:medusa": "playwright test -c playwright.medusa.config.ts",
-    "backend:build": "node scripts/backend-build.mjs"
+    "backend:build": "node scripts/run-with-node.mjs scripts/backend-build.mjs"
   },
   "dependencies": {
     "jose": "^6.2.14",

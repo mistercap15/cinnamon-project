@@ -27,15 +27,16 @@ npm run start
 
 The `phase-2-medusa-demo` branch adds a real **Medusa 2.22.1** backend and PostgreSQL database while preserving the existing landing page. Medusa is self-hosted open-source software; the local demo needs no Shopify subscription, Medusa Cloud account, Docker, card processor, or email account. Public hosting and production services are separate decisions.
 
-Use **Node 24 LTS** for the embedded database demo. From this repository:
+Use **Node 24 LTS** for the embedded database demo. For a fresh installation, install Node 24 (or use `nvm use` if nvm is installed), then run:
 
 ```bash
-nvm use
 npm ci
 npm run backend:install
 npm run demo:setup
 npm run demo
 ```
+
+After setup, start everything with **`npm run demo`**. The demo, setup, backend-build, and unit-test commands automatically select an installed Node 24+ runtime, even if the shell defaults to Node 20. The launcher checks the current runtime, PATH, common Homebrew/nvm/Volta installations, and Codex’s local runtime. It does not download Node or change your global Node installation. No `nvm` command or manual PATH prefix is needed when a compatible runtime is already installed. You can explicitly select one with `CEYLON_NODE_BINARY=/absolute/path/to/node npm run demo`. If none is found, the launcher gives installation instructions before starting any services.
 
 - Storefront: [localhost:3014](http://localhost:3014)
 - Medusa Admin: [localhost:9000/app](http://localhost:9000/app)
